@@ -5,6 +5,8 @@
 cmake_minimum_required(VERSION 2.8.0)
 project(op3_gui_demo)
 
+set(CMAKE_CXX_STANDARD 14)
+
 ##############################################################################
 # Catkin
 ##############################################################################
@@ -26,16 +28,14 @@ find_package(catkin REQUIRED COMPONENTS
   op3_walking_module_msgs
   op3_online_walking_module_msgs
   humanoid_nav_msgs
+  tf
 )
 
 find_package(Eigen REQUIRED)
+find_package(yaml-cpp REQUIRED)
 
-if("${qt_gui_cpp_USE_QT_MAJOR_VERSION} " STREQUAL "5 ")
-  find_package(Qt5Widgets REQUIRED)
-else()
-  find_package(Qt4 COMPONENTS QtCore QtGui REQUIRED)
-  include(${QT_USE_FILE})
-endif()
+set(Qt5_DIR "/home/haritsahm/libraries/Qt/5.15.1/gcc_64/lib/cmake/Qt5/")
+find_package(Qt5 REQUIRED COMPONENTS Core Gui Widgets)
 
 set(op3_gui_demo_SRCS
   src/main.cpp
@@ -103,14 +103,15 @@ include_directories(
   ${op3_gui_demo_INCLUDE_DIRECTORIES}
   ${catkin_INCLUDE_DIRS}
   ${Eigen_INCLUDE_DIRS}
+  ${YAML_CPP_INCLUDE_DIR}
 )
 add_executable(${PROJECT_NAME} ${op3_gui_demo_SRCS} ${op3_gui_demo_MOCS} ${op3_gui_demo_UIS_H} ${op3_gui_demo_RCC})
 add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} yaml-cpp)
+target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} ${YAML_CPP_LIBRARIES})
 if("${qt_gui_cpp_USE_QT_MAJOR_VERSION} " STREQUAL "5 ")
-  target_link_libraries(${PROJECT_NAME} Qt5::Widgets yaml-cpp)
+  target_link_libraries(${PROJECT_NAME} Qt5::Widgets Qt5::Gui Qt5::Core ${YAML_CPP_LIBRARIES})
 else()
-  target_link_libraries(${PROJECT_NAME} ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY} yaml-cpp)
+  target_link_libraries(${PROJECT_NAME} ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY} ${YAML_CPP_LIBRARIES})
 endif()
 
 find_package(class_loader)

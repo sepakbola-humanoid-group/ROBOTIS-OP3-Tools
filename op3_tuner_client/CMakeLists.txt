@@ -5,6 +5,8 @@
 cmake_minimum_required(VERSION 2.8.0)
 project(op3_tuner_client)
 
+set(CMAKE_CXX_STANDARD 14)
+
 ##############################################################################
 # Catkin
 ##############################################################################
@@ -18,28 +20,10 @@ find_package(catkin REQUIRED COMPONENTS
   op3_tuning_module_msgs
 )
 
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(YAML_CPP REQUIRED yaml-cpp)
-find_path(YAML_CPP_INCLUDE_DIR
-  NAMES yaml_cpp.h
-  PATHS ${YAML_CPP_INCLUDE_DIRS}
-)
-find_library(YAML_CPP_LIBRARY
-  NAMES YAML_CPP
-  PATHS ${YAML_CPP_LIBRARY_DIRS}
-)
-link_directories(${YAML_CPP_LIBRARY_DIRS})
+find_package(yaml-cpp REQUIRED)
 
-if(NOT ${YAML_CPP_VERSION} VERSION_LESS "0.5")
-add_definitions(-DHAVE_NEW_YAMLCPP)
-endif(NOT ${YAML_CPP_VERSION} VERSION_LESS "0.5")
-
-if("${qt_gui_cpp_USE_QT_MAJOR_VERSION} " STREQUAL "5 ")
-  find_package(Qt5Widgets REQUIRED)
-else()
-  find_package(Qt4 COMPONENTS QtCore QtGui REQUIRED)
-  include(${QT_USE_FILE})
-endif()
+set(Qt5_DIR "/home/haritsahm/libraries/Qt/5.15.1/gcc_64/lib/cmake/Qt5/")
+find_package(Qt5 REQUIRED COMPONENTS Core Gui Widgets)
 
 set(op3_tuner_client_SRCS
   src/main.cpp
@@ -102,13 +86,14 @@ endif()
 include_directories(
   ${op3_tuner_client_INCLUDE_DIRECTORIES}
   ${catkin_INCLUDE_DIRS}
-  ${YAML_CPP_INCLUDE_DIRS}
+  ${YAML_CPP_INCLUDE_DIR}
 )
+
 add_executable(${PROJECT_NAME} ${op3_tuner_client_SRCS} ${op3_tuner_client_MOCS} ${op3_tuner_client_UIS_H} ${op3_tuner_client_RCC})
 add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} yaml-cpp)
+target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} ${YAML_CPP_LIBRARIES})
 if("${qt_gui_cpp_USE_QT_MAJOR_VERSION} " STREQUAL "5 ")
-  target_link_libraries(${PROJECT_NAME} Qt5::Widgets ${YAML_CPP_LIBRARIES})
+  target_link_libraries(${PROJECT_NAME} Qt5::Widgets Qt5::Gui Qt5::Core ${YAML_CPP_LIBRARIES})
 else()
   target_link_libraries(${PROJECT_NAME} ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY} ${YAML_CPP_LIBRARIES})
 endif()
